@@ -8,3 +8,13 @@ D:\SomeShitFromUniversity\DronCities\obj\Debug\DronCities.csproj.GenerateResourc
 D:\SomeShitFromUniversity\DronCities\obj\Debug\DronCities.csproj.CoreCompileInputs.cache
 D:\SomeShitFromUniversity\DronCities\obj\Debug\DronCities.exe
 D:\SomeShitFromUniversity\DronCities\obj\Debug\DronCities.pdb
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\bin\Debug\DronCities.exe.config
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\bin\Debug\DronCities.exe
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\bin\Debug\DronCities.pdb
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.csproj.AssemblyReference.cache
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.Form1.resources
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.Properties.Resources.resources
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.csproj.GenerateResource.cache
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.csproj.CoreCompileInputs.cache
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.exe
+C:\ЛиОАвИЗ\christmasDrons-main\christmasDrons-main\DronCities\obj\Debug\DronCities.pdb

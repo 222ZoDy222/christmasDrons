@@ -11,7 +11,7 @@ using Microsoft.VisualBasic;
 using Microsoft.VisualBasic.FileIO;
 using DronCities.Assets;
 using System.Runtime.InteropServices;
-
+using System.Threading;
 
 namespace DronCities
 {
@@ -20,18 +20,22 @@ namespace DronCities
 	{
 		
 		private OpenFileDialog ofd;
+		public Country Russia;
+		public FindMinDistance MinDistance;
 
 		public Form1()
 		{
+			
 			InitializeComponent();
-			//WindowState = FormWindowState.Maximized;
-			//TopMost = true;
+			WindowState = FormWindowState.Maximized;
+			TopMost = true;
+
 		}
 
 		private void button1_Click(object sender, EventArgs e)
 		{
-			
-			
+
+			button3.Visible = false;
 			ofd = new OpenFileDialog();
 			if (ofd.ShowDialog() == DialogResult.OK)
 			{
@@ -46,10 +50,12 @@ namespace DronCities
 				int i = 0;
 				int count = 1;
 				string[] textResult = new string[5];
-				foreach(var item in result)
+				string[] richtextResult = new string[5];
+				foreach (var item in result)
 				{
 					//textResult[i] += count +") "+ item + Environment.NewLine;
 					textResult[i] += item + ",";
+					richtextResult[i] += item + "\r\n";
 					i++;
 					if (i == 5)
 					{
@@ -59,14 +65,14 @@ namespace DronCities
 					GoProgressBar(1, 10000);
 
 				}
-				
-				richTextBox2.Text += textResult[0];
-				richTextBox3.Text += textResult[1];
-				richTextBox4.Text += textResult[2];
-				richTextBox5.Text += textResult[3];
-				richTextBox6.Text += textResult[4];
 
-				var Test = new Country(textResult[0], textResult[1], textResult[2], textResult[3], textResult[4]);
+				Russia = new Country(textResult[0], textResult[1], textResult[2], textResult[3], textResult[4]);
+				
+				richTextBox2.Text = richtextResult[0];
+				richTextBox3.Text = richtextResult[1];
+				richTextBox4.Text = richtextResult[2];
+				richTextBox5.Text = richtextResult[3];
+				richTextBox6.Text = richtextResult[4];
 
 				button1.Visible = false;
 				button2.Visible = true;
@@ -89,9 +95,13 @@ namespace DronCities
 		{
 			HideAllStartForms();
 			pictureBox1.Visible = true;
-			Country Russia = new Country(richTextBox2.Text, richTextBox3.Text, richTextBox4.Text, richTextBox5.Text, richTextBox6.Text);
+			button3.Visible = true;
 			
+			button3.Visible = true;
 			Draw(Russia);
+			button3.Visible = true;
+			//Thread.Sleep(3000);
+			button3.Visible = true;
 
 		}
 
@@ -101,34 +111,56 @@ namespace DronCities
 			Bitmap bmp = new Bitmap(pictureBox1.Width, pictureBox1.Height);
 			Graphics graph = Graphics.FromImage(bmp);
 			List<Rectangle> rect = new List<Rectangle>();
-			//Rectangle rect = ;
-			for (int i = 0; i < country.Cities.Count; i++)
-			{
-				rect.Add(new Rectangle(Convert.ToInt32(Math.Round(country.Cities[i].y * 10)) - 100, Convert.ToInt32(Math.Round(country.Cities[i].x * 10)) - 100, 3, 3));
-			}
-			for (int i = 0; i < country.Cities.Count; i++)
-			{
-				graph.DrawRectangle(Pens.Black, rect[i]);
-				graph.FillRectangle(Brushes.Black, rect[i]);
-			}
+            //Rectangle rect = ;
+            for (int i = 0; i < country.Cities.Count -1; i++)
+            {
+                rect.Add(new Rectangle(Convert.ToInt32(Math.Round(country.Cities[i].y * 10)) - 150, Convert.ToInt32(Math.Round(country.Cities[i].x * 10)) - 150, 2, 2));
+            }
 
-			graph.DrawRectangle(Pens.Red, new Rectangle(Convert.ToInt32(Math.Round(country.StartPoint.y * 10)) - 100, Convert.ToInt32(Math.Round(country.StartPoint.x * 10)) - 100, 3, 3));
-			graph.FillRectangle(Brushes.Red, new Rectangle(Convert.ToInt32(Math.Round(country.StartPoint.y * 10)) - 100, Convert.ToInt32(Math.Round(country.StartPoint.x * 10)) - 100, 3, 3));
 
-			
-			FindMinDistance MinDistance = new FindMinDistance(country);
+            graph.DrawRectangle(Pens.Red, new Rectangle(Convert.ToInt32(Math.Round(country.StartPoint.y * 10)) - 150, Convert.ToInt32(Math.Round(country.StartPoint.x * 10)) - 150, 2, 2));
+            graph.FillRectangle(
+                new SolidBrush(Color.FromArgb(255, country.StartPoint.color.R, country.StartPoint.color.G, country.StartPoint.color.B)),
+                new Rectangle(Convert.ToInt32(Math.Round(country.StartPoint.y * 10)) - 150, Convert.ToInt32(Math.Round(country.StartPoint.x * 10)) - 150, 2, 2)
+            );
+
+
+            MinDistance = new FindMinDistance(country);
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////
+			///
+			/// 
+			///Cюда вставлять код для проверки прохода всех городов, если все черные, то всё ОК
+			///
+			/// 
+			//////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 			DrawSide(graph, MinDistance);
-			List<Rectangle> rectLeftUp = new List<Rectangle>();
-			
-			pictureBox1.Image = bmp;
+            for (int i = 0; i < country.Cities.Count -1; i++)
+            {
+                try
+                {
+                    graph.DrawRectangle(new Pen(Color.FromArgb(255, 192, 255, 255)), rect[i]);
+                    graph.FillRectangle(new SolidBrush(Color.FromArgb(255, country.Cities[i].color.R, country.Cities[i].color.G, country.Cities[i].color.B)), rect[i]);
 
-			//textBox2.Text = $"Слева : {MinDistance.LeftDown.Count} городов, справа : {MinDistance.LeftDown.Count} городов!";
+                }
+                catch (NullReferenceException)
+                {
+                    continue;
+                }
+            }
+
+            pictureBox1.Image = bmp;
+
+
+
+            textBox2.Text = $"Слева : {MinDistance.leftSideOfMap.Count} городов, справа : {MinDistance.rightSideOfMap.Count} городов!";
 			textBox2.Visible = true;
+			
 		}
 
 		private void DrawSide(Graphics graph, FindMinDistance MinDistance)
 		{
+			//int AllCities = MinDistance.LeftDown.Count + MinDistance.RightDown.Count + MinDistance.LeftUp.Count + MinDistance.RightUp.Count - 1;
 			List<Rectangle> rectLeftDown = new List<Rectangle>();
 			List<Rectangle> rectLeftUp = new List<Rectangle>();
 			List<Rectangle> rectRightDown = new List<Rectangle>();
@@ -136,41 +168,244 @@ namespace DronCities
 			///////////////////////////////////////////////////////
 			for (int i = 0; i < MinDistance.LeftDown.Count; i++)
 			{
-				rectLeftDown.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.LeftDown[i].y * 10)) - 100, Convert.ToInt32(Math.Round(MinDistance.LeftDown[i].x * 10)) - 100, 3, 3));
+				rectLeftDown.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.LeftDown[i].y * 10)) - 150, Convert.ToInt32(Math.Round(MinDistance.LeftDown[i].x * 10)) - 50, 2, 2));
 			}
 			for (int i = 0; i < MinDistance.LeftUp.Count; i++)
 			{
-				rectLeftUp.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.LeftUp[i].y * 10)) - 100, Convert.ToInt32(Math.Round(MinDistance.LeftUp[i].x * 10)) - 100, 3, 3));
+				rectLeftUp.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.LeftUp[i].y * 10)) - 150, Convert.ToInt32(Math.Round(MinDistance.LeftUp[i].x * 10)) - 50, 2, 2));
 			}
 			for (int i = 0; i < MinDistance.RightDown.Count; i++)
 			{
-				rectRightDown.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.RightDown[i].y * 10)) - 100, Convert.ToInt32(Math.Round(MinDistance.RightDown[i].x * 10)) - 100, 3, 3));
+				rectRightDown.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.RightDown[i].y * 10)) - 150, Convert.ToInt32(Math.Round(MinDistance.RightDown[i].x * 10)) - 50, 2, 2));
 			}
 			for (int i = 0; i < MinDistance.RightUp.Count; i++)
 			{
-				rectRightUp.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.RightUp[i].y * 10)) - 100, Convert.ToInt32(Math.Round(MinDistance.RightUp[i].x * 10)) - 100, 3, 3));
+				rectRightUp.Add(new Rectangle(Convert.ToInt32(Math.Round(MinDistance.RightUp[i].y * 10)) - 150, Convert.ToInt32(Math.Round(MinDistance.RightUp[i].x * 10)) - 50, 2, 2));
 			}
 			////////////////////////////////////////////////////////
-			for (int i = 0; i < MinDistance.LeftDown.Count; i++)
+			
+			
+			
+		}
+
+		
+		private void button3_Click(object sender, EventArgs e)
+		{
+			
+			var twentyClosedCities = FindMinDistance.FindListClosedCities(Russia.StartPoint, MinDistance.leftSideOfMap);
+
+			double countDistance = 0;
+			int countOfVis = 0;
+			City start = Russia.StartPoint;
+			var MinCountOfDistance = double.MaxValue;
+			for (int i = 0; i < 30; i++)
 			{
-				graph.DrawRectangle(Pens.Blue, rectLeftDown[i]);
-				graph.FillRectangle(Brushes.Blue, rectLeftDown[i]);
+				countDistance += FindMinDistance.FindDistance(start, twentyClosedCities[i]);
+				start = twentyClosedCities[i];
+				while (countOfVis != MinDistance.leftSideOfMap.Count)
+				{
+					City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.leftSideOfMap);
+					double distance = FindMinDistance.FindDistance(start, closerCity);
+					countDistance += distance;
+					start = closerCity;
+					start.Visit = true;
+					start.color.R = 0;
+					start.color.G = 0;
+					start.color.B = 0;
+					countOfVis++;
+				}
+				countDistance += FindMinDistance.FindDistance(start, Russia.StartPoint);
+				if (countDistance < MinCountOfDistance)
+				{
+					MinCountOfDistance = countDistance;
+				}
 			}
-			for (int i = 0; i < MinDistance.LeftUp.Count; i++)
+			textBox3.Text += "Дистанция первого дрона : " + MinCountOfDistance * 111 + "км";
+			var AllCountOfDistance = MinCountOfDistance;
+
+			twentyClosedCities = FindMinDistance.FindListClosedCities(Russia.StartPoint, MinDistance.rightSideOfMap);
+
+			countDistance = 0;
+			countOfVis = 0;
+			start = Russia.StartPoint;
+			MinCountOfDistance = double.MaxValue;
+			for (int i = 0; i < 30; i++)
 			{
-				graph.DrawRectangle(Pens.Green, rectLeftUp[i]);
-				graph.FillRectangle(Brushes.Green, rectLeftUp[i]);
+				countDistance += FindMinDistance.FindDistance(start, twentyClosedCities[i]);
+				start = twentyClosedCities[i];
+				while (countOfVis != MinDistance.rightSideOfMap.Count)
+				{
+					City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.rightSideOfMap);
+					double distance = FindMinDistance.FindDistance(start, closerCity);
+					countDistance += distance;
+					start = closerCity;
+					start.Visit = true;
+					start.color.R = 0;
+					start.color.G = 0;
+					start.color.B = 0;
+					countOfVis++;
+				}
+				countDistance += FindMinDistance.FindDistance(start, Russia.StartPoint);
+				if (countDistance < MinCountOfDistance)
+				{
+					MinCountOfDistance = countDistance;
+				}
 			}
-			for (int i = 0; i < MinDistance.RightDown.Count; i++)
-			{
-				graph.DrawRectangle(Pens.Yellow, rectRightDown[i]);
-				graph.FillRectangle(Brushes.Yellow, rectRightDown[i]);
-			}
-			for (int i = 0; i < MinDistance.RightUp.Count; i++)
-			{
-				graph.DrawRectangle(Pens.Purple, rectRightUp[i]);
-				graph.FillRectangle(Brushes.Purple, rectRightUp[i]);
-			}
+			textBox3.Text += "\r\nДистанция второго дрона : " + MinCountOfDistance * 111 + "км";
+			AllCountOfDistance += MinCountOfDistance;
+			textBox3.Text += "\r\nДистанция в сумме : " + AllCountOfDistance * 111 + "км";
+			textBox3.Visible = true;
+			button3.Visible = false;
+			
+
+
+
+
+			//double countDistance = 0;
+			//double res = FindMinDistance.FindDistance(Russia.Cities[0], Russia.Cities[1]);
+			//int countOfVis = 0;
+			//City start = Russia.StartPoint;
+
+			////FindMinSide_ = FindMinDistance.FindUpMinDistance;
+
+
+
+
+
+
+
+
+
+			//         double countDistance = 0;
+			//         //double res = FindMinDistance.FindDistance(Russia.Cities[0], Russia.Cities[1]);
+			//         int countOfVis = 0;
+			//         City start = Russia.StartPoint;
+
+			//         double FUCKINBIGDISTANCE = 0;
+
+			//         while (countOfVis != MinDistance.LeftDown.Count)
+			//         {
+			//             City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.LeftDown);
+			//             double distance = FindMinDistance.FindDistance(start, closerCity);
+			//             countDistance += distance;
+			//             if (FUCKINBIGDISTANCE < distance) FUCKINBIGDISTANCE = distance;
+
+			//             start = closerCity;
+			//             start.Visit = true;
+			//             start.color.R = 0;
+			//             start.color.G = 0;
+			//             start.color.B = 0;
+			//             countOfVis++;
+			//         }
+
+
+			//         City longerCity = FindMinDistance.FindAllDistanceMAX(Russia.StartPoint, MinDistance.LeftUp);
+			//         longerCity.color.R = 0;
+			//         longerCity.color.G = 0;
+			//         longerCity.color.B = 0;
+			//         longerCity.Visit = true;
+			//         countDistance += FindMinDistance.FindDistance(start, longerCity);
+			//         start = longerCity;
+
+			//         countOfVis = 0;
+			//         while (countOfVis != MinDistance.LeftUp.Count - 1)
+			//         {
+
+			//             City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.LeftUp);
+			//             double distance = FindMinDistance.FindDistance(start, closerCity);
+			//             countDistance += distance;
+
+			//             start = closerCity;
+			//             start.Visit = true;
+			//             start.color.R = 0;
+			//             start.color.G = 0;
+			//             start.color.B = 0;
+			//             countOfVis++;
+			//         }
+			//         countDistance += FindMinDistance.FindDistance(start, Russia.StartPoint);
+
+			//         double FirstDronDistance = countDistance * 111;
+
+
+
+
+			//         countDistance = 0;
+			//         //double res = FindMinDistance.FindDistance(Russia.Cities[0], Russia.Cities[1]);
+			//         countOfVis = 0;
+			//         start = Russia.StartPoint;
+
+			//         while (countOfVis != MinDistance.RightDown.Count)
+			//         {
+			//             City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.RightDown);
+			//             double distance = FindMinDistance.FindDistance(start, closerCity);
+			//             countDistance += distance;
+
+			//             start = closerCity;
+			//             start.Visit = true;
+			//             start.color.R = 0;
+			//             start.color.G = 0;
+			//             start.color.B = 0;
+			//             countOfVis++;
+			//         }
+
+
+			//         longerCity = FindMinDistance.FindAllDistanceMAX(Russia.StartPoint, MinDistance.RightUp);
+			//         longerCity.color.R = 0;
+			//         longerCity.color.G = 0;
+			//         longerCity.color.B = 0;
+			//         longerCity.Visit = true;
+			//         countDistance += FindMinDistance.FindDistance(start, longerCity);
+			//         start = longerCity;
+
+			//         countOfVis = 0;
+			//         while (countOfVis != MinDistance.RightUp.Count - 1)
+			//         {
+
+			//             City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.RightUp);
+			//             double distance = FindMinDistance.FindDistance(start, closerCity);
+			//             countDistance += distance;
+
+			//             start = closerCity;
+			//             start.Visit = true;
+			//             start.color.R = 0;
+			//             start.color.G = 0;
+			//             start.color.B = 0;
+			//             countOfVis++;
+			//         }
+			//         countDistance += FindMinDistance.FindDistance(start, Russia.StartPoint);
+
+			//         double SecondDronDistance = countDistance * 111;
+
+		}
+
+		private void richTextBox2_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void richTextBox3_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void pictureBox1_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void richTextBox5_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void richTextBox6_TextChanged(object sender, EventArgs e)
+		{
+
+		}
+
+		private void richTextBox4_TextChanged(object sender, EventArgs e)
+		{
+
 		}
 	}
 }
