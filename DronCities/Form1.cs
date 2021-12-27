@@ -27,8 +27,8 @@ namespace DronCities
 		{
 			
 			InitializeComponent();
-			WindowState = FormWindowState.Maximized;
-			TopMost = true;
+			//WindowState = FormWindowState.Maximized;
+			//TopMost = true;
 
 		}
 
@@ -198,11 +198,15 @@ namespace DronCities
 			int countOfVis = 0;
 			City start = Russia.StartPoint;
 			var MinCountOfDistance = double.MaxValue;
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < 100; i++)
 			{
+				countDistance = 0;
+				countOfVis = 0;
+				start = Russia.StartPoint;
 				countDistance += FindMinDistance.FindDistance(start, twentyClosedCities[i]);
 				start = twentyClosedCities[i];
-				while (countOfVis != MinDistance.leftSideOfMap.Count)
+				twentyClosedCities[i].Visit = true;
+				while (countOfVis != MinDistance.leftSideOfMap.Count - 1)
 				{
 					City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.leftSideOfMap);
 					double distance = FindMinDistance.FindDistance(start, closerCity);
@@ -219,6 +223,10 @@ namespace DronCities
 				{
 					MinCountOfDistance = countDistance;
 				}
+				foreach(var item in MinDistance.leftSideOfMap)
+				{
+					item.Visit = false;
+				}
 			}
 			textBox3.Text += "Дистанция первого дрона : " + MinCountOfDistance * 111 + "км";
 			var AllCountOfDistance = MinCountOfDistance;
@@ -229,11 +237,15 @@ namespace DronCities
 			countOfVis = 0;
 			start = Russia.StartPoint;
 			MinCountOfDistance = double.MaxValue;
-			for (int i = 0; i < 30; i++)
+			for (int i = 0; i < 100; i++)
 			{
+				countDistance = 0;
+				countOfVis = 0;
+				start = Russia.StartPoint;
 				countDistance += FindMinDistance.FindDistance(start, twentyClosedCities[i]);
 				start = twentyClosedCities[i];
-				while (countOfVis != MinDistance.rightSideOfMap.Count)
+				twentyClosedCities[i].Visit = true;
+				while (countOfVis != MinDistance.rightSideOfMap.Count - 1)
 				{
 					City closerCity = FindMinDistance.FindAllDistance(start, MinDistance.rightSideOfMap);
 					double distance = FindMinDistance.FindDistance(start, closerCity);
@@ -249,6 +261,10 @@ namespace DronCities
 				if (countDistance < MinCountOfDistance)
 				{
 					MinCountOfDistance = countDistance;
+				}
+				foreach (var item in MinDistance.rightSideOfMap)
+				{
+					item.Visit = false;
 				}
 			}
 			textBox3.Text += "\r\nДистанция второго дрона : " + MinCountOfDistance * 111 + "км";

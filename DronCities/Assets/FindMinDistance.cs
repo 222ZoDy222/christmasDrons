@@ -21,20 +21,20 @@ namespace DronCities.Assets
 		{
 			for(int i = 0; i < country.Cities.Count; i++)
 			{
-				if((country.StartPoint.y - country.Cities[i].y) < 0 && (country.StartPoint.x - country.Cities[i].x) < 0)
+				if((country.StartPoint.y - country.Cities[i].y) < -17 && (country.StartPoint.x - country.Cities[i].x) < 0)
 				{
 					RightDown.Add(country.Cities[i]);
 					rightSideOfMap.Add(country.Cities[i]);
 					country.Cities[i].color = new CityColor(0,255,10);
 
 				}
-				else if((country.StartPoint.y - country.Cities[i].y) < 0 && (country.StartPoint.x - country.Cities[i].x) > 0)
+				else if((country.StartPoint.y - country.Cities[i].y) < -17 && (country.StartPoint.x - country.Cities[i].x) > 0)
 				{
 					RightUp.Add(country.Cities[i]);
 					rightSideOfMap.Add(country.Cities[i]);
 					country.Cities[i].color = new CityColor(0, 255, 10);
 				}
-				else if((country.StartPoint.y - country.Cities[i].y) > 0 && (country.StartPoint.x - country.Cities[i].x) > 0)
+				else if((country.StartPoint.y - country.Cities[i].y) > -17 && (country.StartPoint.x - country.Cities[i].x) > 0)
 				{
 					LeftUp.Add(country.Cities[i]);
 					leftSideOfMap.Add(country.Cities[i]);
@@ -135,8 +135,9 @@ namespace DronCities.Assets
 		/// <returns></returns>
 		static public City[] FindListClosedCities(City city, List<City> Side)
 		{
-			var res = new City[30];
-			for(int i = 0; i < 30; i++)
+			var res = new City[100];
+			var ShitName = new City();
+			for(int i = 0; i < res.Length; i++)
 			{
 				res[i] = Side[0];
 			}
@@ -148,12 +149,29 @@ namespace DronCities.Assets
 					
 					if (FindDistance(city, Side[i]) < FindDistance(city, res[j]))
 					{
+						for(int k = j; k < res.Length - 1; k++)
+						{
+							res[j + 1] = res[j];
+						}
 						res[j] = Side[i];
 						break;
+					}
+					else
+					{
+						for(int jj = 0; jj < res.Length; jj++)
+						{
+							if(res[jj].name == ShitName.name)
+							{
+								ShitName = res[jj];
+								res[jj] = Side[i];
+								break;
+							}
+						}
 					}
 				}
 					
 			}
+			res[99] = Side[0];
 			return res;
 		}
 
